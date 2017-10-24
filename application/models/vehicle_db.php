@@ -1,0 +1,31 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Abhisek
+ * Date: 10/19/2017
+ * Time: 1:50 PM
+ */
+
+class vehicle_db extends CI_Model
+{
+    public function add_vehicle($data)
+    {
+        $res = $this->db->insert('vehicles', $data);
+    }
+
+    public function remove_vehicle($vehicle_id)
+    {
+        $res = $this->db->delete('vehicles', array('vehicle_id' => $vehicle_id));
+        if ($res == 1) {
+            $this->session->set_flashdata('added', "The vehicle has been successfully deleted");
+        }
+    }
+
+
+    public function select_vehicles()
+    {
+        $res = $this->db->get('vehicles')->result();
+        return $res;
+
+    }
+}
