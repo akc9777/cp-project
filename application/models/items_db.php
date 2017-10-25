@@ -8,12 +8,13 @@
 
 class items_db extends CI_Model
 {
+    //selects all the items in system
     public function select_items()
     {
         $res = $this->db->get('items')->result();
         return $res;
     }
-
+    //selects orders that are ordered in a bill
     public function select_items_of_order($bill_no)
     {
         $this->db->select('o.item_id,o.quantity');
@@ -22,7 +23,7 @@ class items_db extends CI_Model
         $this->db->where('o.bill_no', $bill_no);
         return $this->db->get()->result();
     }
-
+    //adds new item to database
     public function add_item($data)
     {
         $res = $this->db->insert('items', $data);
@@ -32,11 +33,10 @@ class items_db extends CI_Model
             $this->session->set_flashdata('fail', "Something went wrong.");
         }
     }
-
+    //adds stock of existing items
     public function add_stock($item_id, $quantity)
     {
         $this->db->set('quantity', 'quantity + ' . (int)$quantity, FALSE);
-//        $this->db->set('quantity', "quantity + $quantity");
         $this->db->where('item_id', $item_id);
         $res = $this->db->update('items');
 
@@ -48,15 +48,14 @@ class items_db extends CI_Model
 
         }
     }
-
+    //reduces stock of items
     public function decrease_stock($item_id, $quantity)
     {
         $this->db->set('quantity', 'quantity - ' . (int)$quantity, FALSE);
-//        $this->db->set('quantity', "quantity - $quantity");
         $this->db->where('item_id', $item_id);
         $this->db->update('items');
     }
-
+    //updates rate of items
     public function update_rate($item_id, $new_rate)
     {
         $this->db->set('rate', "$new_rate");

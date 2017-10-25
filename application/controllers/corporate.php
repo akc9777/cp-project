@@ -8,6 +8,7 @@
 
 class corporate extends CI_Controller
 {
+    //registration function
     public function register()
     {
 
@@ -17,12 +18,12 @@ class corporate extends CI_Controller
             $this->form_validation->set_message('check_default', 'You need to select Account Type');
             $this->form_validation->set_rules('fullname', 'First Name', 'required');
 //            $this->form_validation->set_rules('lname', 'Last Name', 'required');
-            $this->form_validation->set_rules('email', 'Email', 'required');
+            $this->form_validation->set_rules('email', 'Email', 'required|valid_email|is_unique[users.email]|is_unique[users_temp.email]');
             $this->form_validation->set_rules('password', 'Password', 'required|min_length[8]');
             $this->form_validation->set_rules('password2', 'Confirm Password', 'required|min_length[8]|matches[password]');
             $this->form_validation->set_rules('address', 'Address', 'required');
-            $this->form_validation->set_rules('phone', 'Phone', 'required');
-            $this->form_validation->set_rules('citizenship', 'Citizenship Number', 'required');
+            $this->form_validation->set_rules('phone', 'Phone', 'required|is_unique[users.phone]|is_unique[users_temp.phone]');
+            $this->form_validation->set_rules('citizenship', 'Citizenship Number', 'required|is_unique[users.citizenship]|is_unique[users_temp.citizenship]');
 
             // logic if validated
             if ($this->form_validation->run() == TRUE) {
@@ -39,51 +40,23 @@ class corporate extends CI_Controller
                 $citizenship = $this->input->post('citizenship');
                 //Load Model
                 $this->load->model('user_db');
-                //Call Model Function redundancy check
-                $check1 = $this->user_db->redundant_email_check($email);
-                $check2 = $this->user_db->redundant_phone_check($phone);
-                $check3 = $this->user_db->redundant_citizenship_check($citizenship);
-
-                if ($check1 == 0) {
-//                    if redundant mail false
-                    if ($check2 == 0) {
-//                        if redundant phone false
-                        if ($check3 == 0) {
-//                            if redundant citizenship false
-                            $msg = $this->user_db->add_user($fullname, $email, $address, $phone, $password, $ac_type, $citizenship);
-                            if ($msg == 1) {
-                                $this->session->set_flashdata("loginsuccess", "Your account has been created. You can log in after you're verified by administrator");
-
-                            } else {
-                                $this->session->set_flashdata("loginfail", "Something went wrong.Please try again");
-
-                            }
-                            redirect("corporate/login", "refresh");
-                        } else {
-//                            redundant citizenship
-                            $this->session->set_flashdata("ac_create_fail",
-                                "This citizenship number already exists, please review your document or contact support id problem persists.");
-                        }
-                    } else {
-//                        redundant phone
-                        $this->session->set_flashdata("ac_create_fail", "This phone number already exists, use another phone number.");
-                    }
+                $msg = $this->user_db->add_user($fullname, $email, $address, $phone, $password, $ac_type, $citizenship);
+                if ($msg == 1) {
+                    $this->session->set_flashdata("loginsuccess", "Your account has been created. You can log in after you're verified by administrator");
                 } else {
-//                    redundant mail
-                    $this->session->set_flashdata("ac_create_fail", "This email account already exists, use another email.");
+                    $this->session->set_flashdata("loginfail", "Something went wrong.Please try again");
                 }
+                redirect("corporate/login", "refresh");
             }
-
         }
-
         $this->load->view('corporate/signup_view');
     }
-
+    //login function
     public function login()
     {
         if (isset($_POST['login'])) {
             //validation rules
-            $this->form_validation->set_rules('email', 'Email', 'required');
+            $this->form_validation->set_rules('email', 'Email', 'required|valid_email');
             $this->form_validation->set_rules('password', 'Password', 'required|min_length[8]');
             //if valid
             if ($this->form_validation->run() == TRUE) {
@@ -125,6 +98,7 @@ class corporate extends CI_Controller
         $this->load->view('corporate/signin_view');
     }
 
+    //logout function
     public function logout()
     {
         $this->session->set_flashdata('loginsuccess', 'You are logged out.');
@@ -134,6 +108,7 @@ class corporate extends CI_Controller
         redirect('corporate/login', 'refresh');
     }
 
+    //dashboard display
     public function dashboard()
     {
         if (isset($_SESSION['email'])) {
@@ -141,6 +116,7 @@ class corporate extends CI_Controller
         }
     }
 
+    //shows user profile
     public function view_profile()
     {
 
@@ -152,10 +128,11 @@ class corporate extends CI_Controller
         $this->load->view('corporate/profile', $userdata_array);
     }
 
+    //update email
     public function edit_email()
     {
         $this->load->model('user_db');
-        $this->form_validation->set_rules('email', 'Email', 'required');
+        $this->form_validation->set_rules('email', 'Email', 'required|is_unique[users.email]|is_unique[users_temp.email]');
         $current_email = $this->session->email;
         $userdata_array['result'] = $this->user_db->fetch_userdata($current_email);
 
@@ -173,10 +150,11 @@ class corporate extends CI_Controller
 
     }
 
+    //update phone number
     public function edit_phone()
     {
         $this->load->model('user_db');
-        $this->form_validation->set_rules('phone', 'Phone Number', 'required');
+        $this->form_validation->set_rules('phone', 'Phone Number', 'required|is_unique[users.phone]|is_unique[users_temp.phone]');
         $current_email = $this->session->email;
         $userdata_array['result'] = $this->user_db->fetch_userdata($current_email);
         if ($this->form_validation->run() == TRUE) {
@@ -194,6 +172,7 @@ class corporate extends CI_Controller
 
     }
 
+    //update user address
     public function edit_address()
     {
         $this->load->model('user_db');
@@ -213,58 +192,7 @@ class corporate extends CI_Controller
         }
 
     }
-
-    public function edit_profile()
-    {
-        $this->load->model('user_db');
-
-        $this->form_validation->set_rules('address', 'Address', 'required');
-        $this->form_validation->set_rules('phone', 'Phone', 'required');
-
-        $current_email = $this->session->email;
-        echo "before", $this->input->post('address');
-
-        $userdata_array['result'] = $this->user_db->fetch_userdata($current_email);
-        if ($this->form_validation->run() == TRUE) {
-
-            $email = $this->input->post('email');
-            $address = $this->input->post('address');
-            $phone = $this->input->post('phone');
-
-            $check1 = $this->user_db->redundant_email_check($email);
-            $check2 = $this->user_db->redundant_phone_check($phone);
-
-            if ($check1 == 0) {
-                if ($check2 == 0) {
-
-                    $msg_email = $this->user_db->update_email($current_email, $email);
-                    $msg_address = $this->user_db->update_address($current_email, $address);
-
-
-                    if ($msg == 1) {
-                        $this->session->set_flashdata('success', "Profile updated successfully");
-                        redirect("corporate/login", "refresh");
-                        echo "this is corporate contriller";
-                    } else {
-                        $this->session->set_flashdata('fail', "Failed to update profile");
-                    }
-
-                } else {
-                    //phone failed
-                    if ($c)
-                        $this->session->set_flashdata('fail', 'This phone number already exists, use another number');
-                }
-            } else {
-                //email failed
-                if ($current_email != $email) {
-                    $this->session->set_flashdata('fail', 'This email address already exists, use another email address');
-                }
-            }
-        }
-        $this->load->view('corporate/edit_profile', $userdata_array);
-
-    }
-
+    //update password
     public function change_password()
     {
 
@@ -287,7 +215,7 @@ class corporate extends CI_Controller
         }
         $this->load->view('corporate/change_password');
     }
-
+    //adding new admin( can be done by existing admin)
     public function add_admin()
     {
 
@@ -321,7 +249,7 @@ class corporate extends CI_Controller
         }
         $this->load->view('corporate/owner/add_admin');
     }
-
+    //checking if selection is done in register page
     public function check_default($post_string)
     {
         return $post_string == '0' ? FALSE : TRUE;

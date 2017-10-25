@@ -26,6 +26,10 @@
           integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
 </head>
 <body>
+<div>
+    <a class="btn-danger btn" href="<?php echo base_url(); ?>corporate/dashboard">Back to dashboard</a>
+
+</div>
 <div align="center">
     <div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3">
 

@@ -8,6 +8,7 @@
 
 class inventory extends CI_Controller
 {
+    //adds new product to the system
     public function add_item()
     {
         if (isset($_POST['add'])) {
@@ -28,20 +29,20 @@ class inventory extends CI_Controller
         }
         $this->load->view('corporate/owner/inventory/add_items');
     }
-
+    //shows existing products
     public function manage_item()
     {
         $this->load->model('items_db');
         $res['result'] = $this->items_db->select_items();
         $this->load->view('corporate/owner/inventory/item_view', $res);
     }
-
+    //decreases stock when order is delivered
     public function decrease_stock($item_id, $quantity)
     {
         $this->load->model('items_db');
         $this->items_db->decrease_stock($item_id, $quantity);
     }
-
+    //add stock of existing product
     public function add_stock($item_id)
     {
         if (isset($_POST['add'])) {
@@ -75,7 +76,7 @@ class inventory extends CI_Controller
         }
         $this->load->view('corporate/owner/inventory/add_stock');
     }
-
+    //updates rate of existing product
     public function update_rate($item_id)
     {
         if (isset($_POST['update'])) {

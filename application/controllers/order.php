@@ -190,7 +190,7 @@ class order extends CI_Controller
         endforeach;
 
 
-        $this->order_db->mark_as_payed($bill_no);
+        $this->order_db->mark_as_paid($bill_no);
         redirect("order/payment_pending_orders", 'refresh');
     }
 

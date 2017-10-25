@@ -8,6 +8,7 @@
 
 class user_db extends CI_Model
 {
+    //user registration insert
     public function add_user($name, $email, $address, $phone,
                              $password, $ac_type, $citizenship)
     {
@@ -29,6 +30,7 @@ class user_db extends CI_Model
         return $msg;
     }
 
+    //login check
     public function login_check($email, $code)
     {
         $data = array('email' => $email, 'password' => md5($code));
@@ -36,6 +38,7 @@ class user_db extends CI_Model
         return $query->num_rows();
     }
 
+    //selects all the staff
     public function select_users()
     {
         $this->db->select('u.user_id, u.name, u.address, u.email, u.phone, ut.user_type');
@@ -46,11 +49,10 @@ class user_db extends CI_Model
         return $query->result();
     }
 
+    //selects all staffs of a certain user type who aren't member of working group
     public function select_staffs($staff_type)
     {
-
         $user_type_id = $staff_type;
-
         $this->db->select('u.user_id,u.name');
         $this->db->from('users u');
         $this->db->join('working_groups w', 'w.driver_id=u.user_id OR w.worker1_id=u.user_id OR w.worker2_id=u.user_id', 'left outer');
@@ -59,13 +61,10 @@ class user_db extends CI_Model
         $this->db->where('w.worker2_id IS NULL', NULL);
         $this->db->where('u.user_type_id', $user_type_id);
         $query = $this->db->get()->result();
-//        echo "<pre>";
-//        print_r($query);
-//        echo "</pre>";
-
         return $query;
     }
 
+    //selects all new staff who aren't verified
     public function select_unverified_users()
     {
         $this->db->select('u.user_id, u.name, u.address, u.email, u.phone, ut.user_type');
@@ -73,17 +72,16 @@ class user_db extends CI_Model
         $this->db->join('user_types as ut', 'ut.user_type_id = u.user_type_id');
         $this->db->where('u.user_type_id != 1');
         $query = $this->db->get();
-//        echo '<pre>';
-//        print_r($query->result());
-//        echo '</pre>';
         return $query->result();
     }
 
+    //delete unverified users
     public function delete_unverified_user($id)
     {
         $this->db->delete('users_temp', array('user_id' => $id));
     }
 
+    // verify a new staff user
     public function verify_user($id)
     {
         $this->db->select('u.name, u.address, u.email, u.phone, u.citizenship, u.password, u.user_type_id');
@@ -98,44 +96,7 @@ class user_db extends CI_Model
         $this->db->delete('users_temp', array('user_id' => $id));
     }
 
-
-    public function redundant_email_check($email)
-    {
-        $data = array('email' => $email);
-        $query = $this->db->get_where('users', $data);
-        $query1 = $this->db->get_where('users_temp', $data);
-        if ($query1->num_rows() == 0 && $query->num_rows == 0) {
-            return 0;
-        } else {
-            return 1;
-        }
-    }
-
-    public function redundant_phone_check($phone)
-    {
-        $data = array('phone' => $phone);
-        $query = $this->db->get_where('users', $data);
-        $query1 = $this->db->get_where('users_temp', $data);
-        if ($query1->num_rows() == 0 && $query->num_rows == 0) {
-            return 0;
-        } else {
-            return 1;
-        }
-    }
-
-    public function redundant_citizenship_check($citizenship)
-    {
-        $data = array('citizenship' => $citizenship);
-        $query = $this->db->get_where('users', $data);
-        $query1 = $this->db->get_where('users_temp', $data);
-        if ($query1->num_rows() == 0 && $query->num_rows == 0) {
-            return 0;
-        } else {
-            return 1;
-        }
-
-    }
-
+    //selects user row with provided email
     public function fetch_userdata($email)
     {
         $data = array('email' => $email);
@@ -143,33 +104,34 @@ class user_db extends CI_Model
         return $query->result();
     }
 
+    //updates email of a user
     public function update_email($current_email, $email)
     {
         $data = array('email' => $email);
         $clause = array('email' => $current_email);
         $msg = $this->db->update('users', $data, $clause);
         return $msg;
-
     }
 
+    //updates address of the user
     public function update_address($current_email, $address)
     {
         $data = array('address' => $address);
         $clause = array('email' => $current_email);
         $msg = $this->db->update('users', $data, $clause);
         return $msg;
-
     }
 
+    //updates phone number of the user
     public function update_phone($current_email, $phone)
     {
         $data = array('phone' => $phone);
         $clause = array('email' => $current_email);
         $msg = $this->db->update('users', $data, $clause);
         return $msg;
-
     }
 
+    // update password of the user
     public function update_password($email, $password)
     {
         $data = array('password' => md5($password));
@@ -179,7 +141,6 @@ class user_db extends CI_Model
             $this->session->set_flashdata('success', "Password has been updated");
         } else {
             $this->session->set_flashdata('fail', "Password could not be updated");
-
         }
     }
 }

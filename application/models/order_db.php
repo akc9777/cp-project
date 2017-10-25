@@ -7,7 +7,7 @@
  */
 
 class order_db extends CI_Model
-{
+{   //places multiple orders with a bill
     public function place_order($bill, $order)
     {
         $this->db->trans_start();
@@ -32,20 +32,15 @@ class order_db extends CI_Model
 
         }
     }
-
+    //select new orders
     public function select_unverified_bills()
     {
         $this->db->select('b.bill_no, b.orderer, b.phone, b.shipping_address, b.billing_address');
         $this->db->from('bills as b');
-//        $this->db->join('orders as o',"b.bill_no = o.bill_no" );
-//        $this->db->join('items as i',"i.item_id = o.item_id" );
         $this->db->where('b.status=1');
         return $this->db->get()->result();
-//        echo "<pre>";
-//        print_r($res);
-//        echo "</pre>";
     }
-
+//select bill which are verified by admin for delivery
     public function select_verified_bills()
     {
         $this->db->select('b.bill_no, b.orderer, b.phone, b.shipping_address, b.billing_address');
@@ -55,7 +50,7 @@ class order_db extends CI_Model
         $this->db->where('b.status=2');
         return $this->db->get()->result();
     }
-
+//selects bills which are fullfilled but yet to be paid
     public function payment_pending_orders()
     {
         $this->db->select('b.bill_no, b.orderer, b.phone, b.shipping_address, b.billing_address');
@@ -63,7 +58,7 @@ class order_db extends CI_Model
         $this->db->where('b.status=3');
         return $this->db->get()->result();
     }
-
+//selects particular bill and details
     public function select_orders($bill_no)
     {
         $this->db->select('b.bill_no, b.orderer, b.phone, b.shipping_address, b.billing_address, o.quantity,i.item_id, i.name, i.rate');
@@ -74,7 +69,7 @@ class order_db extends CI_Model
         return $this->db->get()->result();
 
     }
-
+//updates bill status to verified for delivery
     public function confirm_order($bill_no)
     {
         $data = array('status' => 2);
@@ -82,13 +77,13 @@ class order_db extends CI_Model
         $msg = $this->db->update('bills', $data, $clause);
         return $msg;
     }
-
+//removes new bill from the database
     public function remove_order($bill_no)
     {
         $res = $this->db->delete('bills', array('bill_no' => $bill_no));
         return $res;
     }
-
+//selects all the orders if a verified bill
     public function select_confirmed_orders($bill_no)
     {
         $this->db->select('b.bill_no, b.orderer, b.phone, b.shipping_address, b.billing_address, o.quantity, i.name, i.rate');
@@ -100,7 +95,7 @@ class order_db extends CI_Model
         return $this->db->get()->result();
 
     }
-
+//binds working group with bill no for delivering
     public function assign_delivery_group($bill_no, $group_id)
     {
         $data = array(
@@ -115,7 +110,7 @@ class order_db extends CI_Model
             $this->session->set_flashdata('fail', "Something went wrong");
         }
     }
-
+//selects all the orders which are to be delivered by a group
     public function select_group_tasks($group_id)
     {
         $this->db->select('b.bill_no, b.orderer, b.phone, b.shipping_address, b.billing_address');
@@ -127,7 +122,7 @@ class order_db extends CI_Model
 
         return $this->db->get()->result();
     }
-
+//updates order status to delivered
     public function mark_as_delivered($bill_no)
     {
         $date = date('Y-m-d');
@@ -140,8 +135,8 @@ class order_db extends CI_Model
 
         }
     }
-
-    public function mark_as_payed($bill_no)
+//updates order status to paid
+    public function mark_as_paid($bill_no)
     {
         $this->db->where('bill_no', $bill_no);
         $res = $this->db->update('bills', array('status' => 4, ));

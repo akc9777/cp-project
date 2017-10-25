@@ -8,11 +8,12 @@
 
 class transaction_db extends CI_Model
 {
+    //inserts monetary transaction
     public function insert_transaction($data)
     {
         $this->db->insert('transactions', $data);
     }
-
+    //selects expensses and profit in system
     public function income_expenses_insight($filter, $days)
     {
         $this->db->select("SUM(rate*quantity) as total");

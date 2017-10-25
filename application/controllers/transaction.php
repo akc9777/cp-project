@@ -8,13 +8,7 @@
 
 class transaction extends CI_Controller
 {
-
-    //takes data to be sent to model for insertion
-    public function income_expenses_insight($filter, $days)
-    {
-
-    }
-
+    //shows overview of company's gross profit and expenses
     public function show_insight()
     {
         $this->load->model('transaction_db');

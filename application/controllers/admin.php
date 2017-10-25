@@ -8,6 +8,7 @@
 
 class admin extends CI_Controller
 {
+//    select all staff
     public function view_staff()
     {
         $this->load->model('user_db');
@@ -15,7 +16,7 @@ class admin extends CI_Controller
         $this->load->view('corporate/owner/view_staff', $staff_array);
 
     }
-
+//    select new staffs
     public function view_unverified_staff()
     {
         $this->load->model('user_db');
@@ -23,20 +24,20 @@ class admin extends CI_Controller
         $this->load->view('corporate/owner/view_unverified_staff', $staff_array);
 
     }
-
+//    delete new staff
     public function delete_unverified_staff($id)
     {
         $this->load->model('user_db');
         $this->user_db->delete_unverified_user($id);
         redirect('admin/view_unverified_staff', 'refresh');
     }
-
+//    verify confirmation for verifying new staff
     public function verify_confirmation($id)
     {
         $id_array['result'] = array('id' => $id);
         $this->load->view('corporate/owner/confirm_verification', $id_array);
     }
-
+//    verifies staff
     public function verify_staff($id)
     {
         $this->load->model('user_db');
